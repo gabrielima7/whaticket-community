@@ -5,49 +5,49 @@ export class LoginDto {
     @ApiProperty({ example: 'admin@whaticket.com' })
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 
     @ApiProperty({ example: 'password123' })
     @IsString()
     @IsNotEmpty({ message: 'Senha é obrigatória' })
     @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
-    password: string;
+    password!: string;
 }
 
 export class RegisterDto {
     @ApiProperty({ example: 'Admin User' })
     @IsString()
     @IsNotEmpty({ message: 'Nome é obrigatório' })
-    name: string;
+    name!: string;
 
     @ApiProperty({ example: 'admin@whaticket.com' })
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 
     @ApiProperty({ example: 'password123' })
     @IsString()
     @IsNotEmpty({ message: 'Senha é obrigatória' })
     @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
-    password: string;
+    password!: string;
 }
 
 export class RefreshTokenDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty({ message: 'Refresh token é obrigatório' })
-    refreshToken: string;
+    refreshToken!: string;
 }
 
 export class AuthResponseDto {
     @ApiProperty()
-    token: string;
+    token!: string;
 
     @ApiProperty()
-    refreshToken: string;
+    refreshToken!: string;
 
     @ApiProperty()
-    user: {
+    user!: {
         id: number;
         name: string;
         email: string;

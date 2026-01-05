@@ -5,12 +5,12 @@ export class SendMessageDto {
     @ApiProperty({ example: 1 })
     @IsInt()
     @IsNotEmpty()
-    ticketId: number;
+    ticketId!: number;
 
     @ApiProperty({ example: 'Hello!' })
     @IsString()
     @IsNotEmpty()
-    body: string;
+    body!: string;
 
     @ApiPropertyOptional()
     @IsOptional()

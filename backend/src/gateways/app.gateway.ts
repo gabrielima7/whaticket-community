@@ -29,7 +29,7 @@ interface AuthenticatedSocket extends Socket {
 export class AppGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
-    server: Server;
+    server!: Server;
 
     private readonly logger = new Logger(AppGateway.name);
     private connectedUsers: Map<number, Set<string>> = new Map();

@@ -25,10 +25,18 @@ const remove = async (id: number): Promise<void> => {
     await api.delete(`/whatsapp/${id}`);
 };
 
-const disconnect = async (id: number): Promise<void> => {
-    await api.delete(`/whatsapp/${id}?disconnect=true`);
+const startSession = async (id: number): Promise<void> => {
+    await api.post(`/whatsapp/${id}/session`);
 };
 
+const disconnect = async (id: number): Promise<void> => {
+    await api.delete(`/whatsapp/${id}/session`);
+};
+
+const getSessionStatus = async (id: number): Promise<{ status: string }> => {
+    const { data } = await api.get(`/whatsapp/${id}/status`);
+    return data;
+};
 
 const whatsappService = {
     list,
@@ -36,7 +44,9 @@ const whatsappService = {
     create,
     update,
     remove,
+    startSession,
     disconnect,
+    getSessionStatus,
 };
 
 export default whatsappService;

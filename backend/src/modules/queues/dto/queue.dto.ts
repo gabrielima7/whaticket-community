@@ -5,12 +5,12 @@ export class CreateQueueDto {
     @ApiProperty({ example: 'Suporte' })
     @IsString()
     @IsNotEmpty()
-    name: string;
+    name!: string;
 
     @ApiProperty({ example: '#3498db' })
     @IsString()
     @IsNotEmpty()
-    color: string;
+    color!: string;
 
     @ApiPropertyOptional()
     @IsOptional()

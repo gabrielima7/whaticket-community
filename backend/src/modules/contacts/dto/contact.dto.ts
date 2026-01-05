@@ -13,12 +13,12 @@ export class CreateContactDto {
     @ApiProperty({ example: 'John Doe' })
     @IsString()
     @IsNotEmpty({ message: 'Nome é obrigatório' })
-    name: string;
+    name!: string;
 
     @ApiProperty({ example: '5511999999999' })
     @IsString()
     @IsNotEmpty({ message: 'Número é obrigatório' })
-    number: string;
+    number!: string;
 
     @ApiPropertyOptional({ example: 'john@example.com' })
     @IsOptional()

@@ -21,18 +21,18 @@ export class CreateUserDto {
     @ApiProperty({ example: 'John Doe' })
     @IsString()
     @IsNotEmpty({ message: 'Nome é obrigatório' })
-    name: string;
+    name!: string;
 
     @ApiProperty({ example: 'john@example.com' })
     @IsEmail({}, { message: 'Email inválido' })
     @IsNotEmpty({ message: 'Email é obrigatório' })
-    email: string;
+    email!: string;
 
     @ApiProperty({ example: 'password123' })
     @IsString()
     @IsNotEmpty({ message: 'Senha é obrigatória' })
     @MinLength(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
-    password: string;
+    password!: string;
 
     @ApiPropertyOptional({ enum: UserProfile, default: UserProfile.USER })
     @IsOptional()
@@ -61,25 +61,25 @@ export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['passwor
 
 export class UserResponseDto {
     @ApiProperty()
-    id: number;
+    id!: number;
 
     @ApiProperty()
-    name: string;
+    name!: string;
 
     @ApiProperty()
-    email: string;
+    email!: string;
 
     @ApiProperty({ enum: UserProfile })
-    profile: string;
+    profile!: string;
 
     @ApiProperty()
-    isActive: boolean;
+    isActive!: boolean;
 
     @ApiProperty()
-    createdAt: Date;
+    createdAt!: Date;
 
     @ApiProperty()
-    updatedAt: Date;
+    updatedAt!: Date;
 
     @ApiPropertyOptional()
     queues?: { id: number; name: string }[];

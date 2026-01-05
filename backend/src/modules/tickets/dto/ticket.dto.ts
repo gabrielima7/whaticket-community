@@ -18,12 +18,12 @@ export class CreateTicketDto {
     @ApiProperty({ example: 1 })
     @IsInt()
     @IsNotEmpty()
-    contactId: number;
+    contactId!: number;
 
     @ApiProperty({ example: 1 })
     @IsInt()
     @IsNotEmpty()
-    whatsappId: number;
+    whatsappId!: number;
 
     @ApiPropertyOptional()
     @IsOptional()
