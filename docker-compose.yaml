@@ -99,7 +99,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
     volumes:
       - whatsapp_sessions:/app/sessions
-      - ./backend-v2/public:/app/public
+      - ./backend/public:/app/public
     ports:
       - "${BACKEND_PORT:-3001}:3001"
     networks:
