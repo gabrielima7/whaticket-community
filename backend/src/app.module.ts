@@ -27,6 +27,7 @@ import { TicketsModule } from './modules/tickets';
 import { MessagesModule } from './modules/messages';
 import { HealthModule } from './modules/health';
 import { GatewaysModule } from './gateways';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -72,7 +73,9 @@ import { GatewaysModule } from './gateways';
     QueuesModule,
     TicketsModule,
     MessagesModule,
+    MessagesModule,
     GatewaysModule,
+    WebhooksModule,
   ],
   providers: [
     {

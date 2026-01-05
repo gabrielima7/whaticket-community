@@ -7,6 +7,7 @@ import {
     Settings as SettingsIcon,
     Group as GroupIcon,
     QuestionAnswer as ChatIcon,
+    Api as ApiIcon,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -48,6 +49,12 @@ export const menuItems: MenuItem[] = [
         title: 'Usuários',
         path: '/users',
         icon: PeopleIcon,
+        roles: ['admin'],
+    },
+    {
+        title: 'Webhooks',
+        path: '/webhooks',
+        icon: ApiIcon,
         roles: ['admin'],
     },
     {

@@ -290,3 +290,18 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// ==================== WEBHOOKS ====================
+
+model Webhook {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  enabled   Boolean  @default(true)
+  events    String[]
+  token     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("webhooks")
+}
