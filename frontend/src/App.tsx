@@ -5,6 +5,8 @@ import Signup from '@/pages/Signup';
 import Contacts from '@/pages/Contacts';
 import Connections from '@/pages/Connections';
 import Tickets from '@/pages/Tickets';
+import Users from '@/pages/Users';
+import Queues from '@/pages/Queues';
 import PrivateRoute from '@/routes/PrivateRoute';
 import MainLayout from '@/layout/MainLayout';
 import { useAuthStore } from '@/context/AuthContext';
@@ -58,10 +60,10 @@ const App = () => {
                     <Route path="/tickets" element={<Tickets />} />
                     <Route path="/contacts" element={<Contacts />} />
                     <Route path="/connections" element={<Connections />} />
+                    <Route path="/queues" element={<Queues />} />
+                    <Route path="/users" element={<Users />} />
 
                     {/* Placeholder routes for remaining pages */}
-                    <Route path="/queues" element={<Typography variant="h4">Filas Page (Em desenvolvimento)</Typography>} />
-                    <Route path="/users" element={<Typography variant="h4">Usuários Page (Em desenvolvimento)</Typography>} />
                     <Route path="/settings" element={<Typography variant="h4">Configurações Page (Em desenvolvimento)</Typography>} />
                 </Route>
             </Route>

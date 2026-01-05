@@ -20,6 +20,7 @@ import { Ticket } from '@/types/ticket';
 import ticketService from '@/services/ticketService';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
+import { useSocket } from '@/context/SocketContext';
 
 interface TicketListProps {
     onSelectTicket: (ticket: Ticket) => void;
@@ -31,16 +32,17 @@ const TicketList: React.FC<TicketListProps> = ({ onSelectTicket, selectedTicketI
     const [loading, setLoading] = useState(false);
     const [tab, setTab] = useState('open');
     const [searchParam, setSearchParam] = useState('');
+    const { socket } = useSocket();
 
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const { tickets } = await ticketService.list({
+            const { tickets: data } = await ticketService.list({
                 status: tab,
                 searchParam,
                 showAll: 'true',
             });
-            setTickets(tickets);
+            setTickets(data);
         } catch (err) {
             toast.error('Erro ao carregar tickets');
         } finally {
@@ -54,6 +56,47 @@ const TicketList: React.FC<TicketListProps> = ({ onSelectTicket, selectedTicketI
         }, 500);
         return () => clearTimeout(timeout);
     }, [tab, searchParam]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleTicketUpdated = (data: Ticket) => {
+            if (data.status === tab) {
+                setTickets((prev) => {
+                    const index = prev.findIndex((t) => t.id === data.id);
+                    if (index !== -1) {
+                        const newTickets = [...prev];
+                        newTickets[index] = data;
+                        // Move to top if updated? Usually yes for lastMessage
+                        newTickets.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+                        return newTickets;
+                    } else {
+                        return [data, ...prev];
+                    }
+                });
+            } else {
+                // Status changed, remove from this list
+                setTickets((prev) => prev.filter((t) => t.id !== data.id));
+            }
+        };
+
+        const handleTicketCreated = (data: Ticket) => {
+            if (data.status === tab) {
+                setTickets((prev) => [data, ...prev]);
+            }
+        };
+
+        socket.on('ticket:updated', handleTicketUpdated);
+        socket.on('ticket:created', handleTicketCreated);
+        // Legacy compatibility
+        socket.on('ticket:update', handleTicketUpdated);
+
+        return () => {
+            socket.off('ticket:updated', handleTicketUpdated);
+            socket.off('ticket:created', handleTicketCreated);
+            socket.off('ticket:update', handleTicketUpdated);
+        };
+    }, [socket, tab]);
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
         setTab(newValue);
@@ -137,7 +180,7 @@ const TicketList: React.FC<TicketListProps> = ({ onSelectTicket, selectedTicketI
                                                 fontWeight: ticket.unreadMessages > 0 ? 'bold' : 'normal',
                                             }}
                                         >
-                                            {ticket.lastMessage || '...'}
+                                            {ticket.lastMessage || ''}
                                         </Typography>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mt={0.5}>
                                             <Typography variant="caption" color="text.secondary">
