@@ -8,6 +8,7 @@ import {
     Group as GroupIcon,
     QuestionAnswer as ChatIcon,
     Api as ApiIcon,
+    SmartToy as SmartToyIcon,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -55,6 +56,12 @@ export const menuItems: MenuItem[] = [
         title: 'Webhooks',
         path: '/webhooks',
         icon: ApiIcon,
+        roles: ['admin'],
+    },
+    {
+        title: 'Inteligência Artificial',
+        path: '/prompts',
+        icon: SmartToyIcon,
         roles: ['admin'],
     },
     {

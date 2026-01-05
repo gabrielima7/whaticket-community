@@ -13,7 +13,10 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import queueService from '@/services/queueService';
+import promptService from '@/services/promptService';
+import { Prompt } from '@/types/prompt';
 import { ChromePicker } from 'react-color';
+import { FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
 
 interface QueueModalProps {
     open: boolean;
@@ -35,21 +38,38 @@ const QueueModal: React.FC<QueueModalProps> = ({
     onSave,
 }) => {
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
+    const [prompts, setPrompts] = useState<Prompt[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await promptService.list();
+                setPrompts(data);
+            } catch (err) {
+                toast.error('Erro ao carregar prompts');
+            }
+        })();
+    }, []);
 
     const formik = useFormik({
         initialValues: {
             name: '',
             color: '#000000',
             greetingMessage: '',
+            promptId: '',
         },
         validationSchema: QueueSchema,
         onSubmit: async (values) => {
             try {
+                const queueData = {
+                    ...values,
+                    promptId: values.promptId ? Number(values.promptId) : undefined,
+                };
                 if (queueId) {
-                    await queueService.update(queueId, values);
+                    await queueService.update(queueId, queueData);
                     toast.success('Fila atualizada com sucesso!');
                 } else {
-                    await queueService.create(values);
+                    await queueService.create(queueData);
                     toast.success('Fila criada com sucesso!');
                 }
                 onSave();
@@ -73,6 +93,7 @@ const QueueModal: React.FC<QueueModalProps> = ({
                         name: queue.name,
                         color: queue.color,
                         greetingMessage: queue.greetingMessage || '',
+                        promptId: (queue.promptId || '') as string,
                     });
                 }
             } catch (err) {
@@ -159,6 +180,28 @@ const QueueModal: React.FC<QueueModalProps> = ({
                         value={formik.values.greetingMessage}
                         onChange={formik.handleChange}
                     />
+
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="prompt-select-label">Prompt (Inteligência Artificial)</InputLabel>
+                        <Select
+                            labelId="prompt-select-label"
+                            id="promptId"
+                            name="promptId"
+                            value={formik.values.promptId}
+                            label="Prompt (Inteligência Artificial)"
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value="">
+                                <em>Nenhum</em>
+                            </MenuItem>
+                            {prompts.map((prompt) => (
+                                <MenuItem key={prompt.id} value={prompt.id}>
+                                    {prompt.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>Selecione um prompt para ativar a IA nesta fila</FormHelperText>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="error">

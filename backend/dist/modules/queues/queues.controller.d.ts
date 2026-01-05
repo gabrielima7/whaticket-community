@@ -16,6 +16,7 @@ export declare class QueuesController {
         updatedAt: Date;
         color: string;
         greetingMessage: string | null;
+        promptId: number | null;
     })[]>;
     findOne(id: number): Promise<{
         users: ({
@@ -50,6 +51,7 @@ export declare class QueuesController {
         updatedAt: Date;
         color: string;
         greetingMessage: string | null;
+        promptId: number | null;
     }>;
     create(dto: CreateQueueDto): Promise<{
         name: string;
@@ -58,6 +60,7 @@ export declare class QueuesController {
         updatedAt: Date;
         color: string;
         greetingMessage: string | null;
+        promptId: number | null;
     }>;
     update(id: number, dto: UpdateQueueDto): Promise<{
         name: string;
@@ -66,6 +69,7 @@ export declare class QueuesController {
         updatedAt: Date;
         color: string;
         greetingMessage: string | null;
+        promptId: number | null;
     }>;
     delete(id: number): Promise<void>;
 }

@@ -10,6 +10,7 @@ exports.WhatsappModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const event_emitter_1 = require("@nestjs/event-emitter");
+const bullmq_1 = require("@nestjs/bullmq");
 const baileys_service_1 = require("./baileys.service");
 const whatsapp_controller_1 = require("./whatsapp.controller");
 const whatsapp_service_1 = require("./whatsapp.service");
@@ -26,6 +27,9 @@ exports.WhatsappModule = WhatsappModule = __decorate([
                 delimiter: '.',
                 maxListeners: 20,
                 verboseMemoryLeak: true,
+            }),
+            bullmq_1.BullModule.registerQueue({
+                name: 'ai_processing',
             }),
         ],
         controllers: [whatsapp_controller_1.WhatsappController],

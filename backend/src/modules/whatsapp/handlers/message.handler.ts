@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PrismaService } from '../../../database/prisma.service';
 import type {
     MessageReceivedEvent,
@@ -13,7 +15,10 @@ import { getContentType } from '@whiskeysockets/baileys';
 export class MessageHandler {
     private readonly logger = new Logger(MessageHandler.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        @InjectQueue('ai_processing') private readonly aiQueue: Queue,
+    ) { }
 
     @OnEvent('whatsapp.message.received')
     async handleMessageReceived(event: MessageReceivedEvent): Promise<void> {
@@ -123,6 +128,43 @@ export class MessageHandler {
         });
 
         this.logger.debug(`Message saved: ${savedMessage.id}`);
+
+        // Dispatch to AI if applicable
+        if (!savedMessage.fromMe && !savedMessage.isDeleted) {
+            await this.dispatchToAI(ticket.id, savedMessage.body, contact.name);
+        }
+    }
+
+    private async dispatchToAI(ticketId: number, messageBody: string, contactName: string) {
+        try {
+            const ticket = await this.prisma.ticket.findUnique({
+                where: { id: ticketId },
+                include: {
+                    queue: { select: { promptId: true } },
+                    whatsapp: { select: { promptId: true } },
+                }
+            });
+
+            if (!ticket) return;
+
+            const promptId = ticket.queue?.promptId || ticket.whatsapp?.promptId;
+
+            if (promptId) {
+                await this.aiQueue.add('handle_message', {
+                    ticketId,
+                    messageBody,
+                    contactName,
+                    promptId,
+                }, {
+                    removeOnComplete: true,
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 1000 },
+                });
+                this.logger.log(`Dispatched message to AI (Ticket ${ticketId}, Prompt ${promptId})`);
+            }
+        } catch (error) {
+            this.logger.error(`Error dispatching to AI: ${error}`);
+        }
     }
 
     private async extractMessageContent(message: WAMessage): Promise<{

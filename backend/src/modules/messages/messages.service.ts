@@ -44,7 +44,7 @@ export class MessagesService {
         };
     }
 
-    async send(dto: SendMessageDto, userId: number) {
+    async send(dto: SendMessageDto, userId: number | null) {
         const ticket = await this.prisma.ticket.findUnique({
             where: { id: dto.ticketId },
             include: {

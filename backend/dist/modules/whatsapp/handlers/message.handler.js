@@ -8,18 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var MessageHandler_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageHandler = void 0;
 const common_1 = require("@nestjs/common");
 const event_emitter_1 = require("@nestjs/event-emitter");
+const bullmq_1 = require("@nestjs/bullmq");
+const bullmq_2 = require("bullmq");
 const prisma_service_1 = require("../../../database/prisma.service");
 const baileys_1 = require("@whiskeysockets/baileys");
 let MessageHandler = MessageHandler_1 = class MessageHandler {
     prisma;
+    aiQueue;
     logger = new common_1.Logger(MessageHandler_1.name);
-    constructor(prisma) {
+    constructor(prisma, aiQueue) {
         this.prisma = prisma;
+        this.aiQueue = aiQueue;
     }
     async handleMessageReceived(event) {
         const { sessionId, message, type } = event;
@@ -109,6 +116,39 @@ let MessageHandler = MessageHandler_1 = class MessageHandler {
             },
         });
         this.logger.debug(`Message saved: ${savedMessage.id}`);
+        if (!savedMessage.fromMe && !savedMessage.isDeleted) {
+            await this.dispatchToAI(ticket.id, savedMessage.body, contact.name);
+        }
+    }
+    async dispatchToAI(ticketId, messageBody, contactName) {
+        try {
+            const ticket = await this.prisma.ticket.findUnique({
+                where: { id: ticketId },
+                include: {
+                    queue: { select: { promptId: true } },
+                    whatsapp: { select: { promptId: true } },
+                }
+            });
+            if (!ticket)
+                return;
+            const promptId = ticket.queue?.promptId || ticket.whatsapp?.promptId;
+            if (promptId) {
+                await this.aiQueue.add('handle_message', {
+                    ticketId,
+                    messageBody,
+                    contactName,
+                    promptId,
+                }, {
+                    removeOnComplete: true,
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 1000 },
+                });
+                this.logger.log(`Dispatched message to AI (Ticket ${ticketId}, Prompt ${promptId})`);
+            }
+        }
+        catch (error) {
+            this.logger.error(`Error dispatching to AI: ${error}`);
+        }
     }
     async extractMessageContent(message) {
         const messageContent = message.message;
@@ -226,6 +266,8 @@ __decorate([
 ], MessageHandler.prototype, "handleConnection", null);
 exports.MessageHandler = MessageHandler = MessageHandler_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, bullmq_1.InjectQueue)('ai_processing')),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        bullmq_2.Queue])
 ], MessageHandler);
 //# sourceMappingURL=message.handler.js.map

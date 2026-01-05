@@ -28,6 +28,8 @@ import { MessagesModule } from './modules/messages';
 import { HealthModule } from './modules/health';
 import { GatewaysModule } from './gateways';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { AIModule } from './modules/ai/ai.module';
+import { PromptsModule } from './modules/prompts/prompts.module';
 
 @Module({
   imports: [
@@ -73,9 +75,10 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
     QueuesModule,
     TicketsModule,
     MessagesModule,
-    MessagesModule,
     GatewaysModule,
     WebhooksModule,
+    AIModule,
+    PromptsModule,
   ],
   providers: [
     {

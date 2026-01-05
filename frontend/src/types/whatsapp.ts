@@ -18,6 +18,7 @@ export interface WhatsApp {
     token?: string;
     number?: string;
     qrcode?: string;
+    promptId?: number;
     createdAt: string;
     updatedAt: string;
 }

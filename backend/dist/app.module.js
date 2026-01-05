@@ -25,6 +25,8 @@ const messages_1 = require("./modules/messages");
 const health_1 = require("./modules/health");
 const gateways_1 = require("./gateways");
 const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
+const ai_module_1 = require("./modules/ai/ai.module");
+const prompts_module_1 = require("./modules/prompts/prompts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -62,9 +64,10 @@ exports.AppModule = AppModule = __decorate([
             queues_1.QueuesModule,
             tickets_1.TicketsModule,
             messages_1.MessagesModule,
-            messages_1.MessagesModule,
             gateways_1.GatewaysModule,
             webhooks_module_1.WebhooksModule,
+            ai_module_1.AIModule,
+            prompts_module_1.PromptsModule,
         ],
         providers: [
             {

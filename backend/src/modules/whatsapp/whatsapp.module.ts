@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 import { BaileysService } from './baileys.service';
 import { WhatsappController } from './whatsapp.controller';
 import { WhatsappService } from './whatsapp.service';
@@ -14,6 +15,9 @@ import { MessageHandler } from './handlers/message.handler';
             delimiter: '.',
             maxListeners: 20,
             verboseMemoryLeak: true,
+        }),
+        BullModule.registerQueue({
+            name: 'ai_processing',
         }),
     ],
     controllers: [WhatsappController],

@@ -232,6 +232,7 @@ export declare class TicketsService {
             createdAt: Date;
             updatedAt: Date;
             greetingMessage: string | null;
+            promptId: number | null;
             qrcode: string | null;
             status: import("@prisma/client").$Enums.WhatsappStatus;
             battery: string | null;

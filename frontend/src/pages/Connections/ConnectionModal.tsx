@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -12,7 +12,10 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import whatsappService from '@/services/whatsappService';
+import promptService from '@/services/promptService';
+import { Prompt } from '@/types/prompt';
 import { toast } from 'react-toastify';
+import { FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
 
 interface ConnectionModalProps {
     open: boolean;
@@ -32,19 +35,37 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
     whatsappId,
     onSave,
 }) => {
+    const [prompts, setPrompts] = useState<Prompt[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await promptService.list();
+                setPrompts(data);
+            } catch (err) {
+                toast.error('Erro ao carregar prompts');
+            }
+        })();
+    }, []);
+
     const formik = useFormik({
         initialValues: {
             name: '',
             isDefault: false,
+            promptId: '',
         },
         validationSchema: ConnectionSchema,
         onSubmit: async (values) => {
             try {
+                const whatsappData = {
+                    ...values,
+                    promptId: values.promptId ? Number(values.promptId) : undefined,
+                };
                 if (whatsappId) {
-                    await whatsappService.update(whatsappId, values);
+                    await whatsappService.update(whatsappId, whatsappData);
                     toast.success('Conexão atualizada com sucesso!');
                 } else {
-                    await whatsappService.create(values);
+                    await whatsappService.create(whatsappData);
                     toast.success('Conexão criada com sucesso!');
                 }
                 onSave();
@@ -65,6 +86,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
                 formik.setValues({
                     name: whatsapp.name,
                     isDefault: whatsapp.isDefault,
+                    promptId: (whatsapp.promptId || '') as string,
                 });
             } catch (err) {
                 toast.error('Erro ao carregar conexão');
@@ -102,6 +124,28 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
                         error={formik.touched.name && Boolean(formik.errors.name)}
                         helperText={formik.touched.name && formik.errors.name}
                     />
+
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="prompt-select-label">Prompt (Inteligência Artificial)</InputLabel>
+                        <Select
+                            labelId="prompt-select-label"
+                            id="promptId"
+                            name="promptId"
+                            value={formik.values.promptId}
+                            label="Prompt (Inteligência Artificial)"
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value="">
+                                <em>Nenhum</em>
+                            </MenuItem>
+                            {prompts.map((prompt) => (
+                                <MenuItem key={prompt.id} value={prompt.id}>
+                                    {prompt.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>Selecione um prompt para ativar a IA nesta conexão</FormHelperText>
+                    </FormControl>
                     <FormControlLabel
                         control={
                             <Switch

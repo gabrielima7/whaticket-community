@@ -8,6 +8,7 @@ import Tickets from '@/pages/Tickets';
 import Users from '@/pages/Users';
 import Queues from '@/pages/Queues';
 import Webhooks from '@/pages/Webhooks';
+import Prompts from '@/pages/Prompts';
 import PrivateRoute from '@/routes/PrivateRoute';
 import MainLayout from '@/layout/MainLayout';
 import { useAuthStore } from '@/context/AuthContext';
@@ -64,6 +65,7 @@ const App = () => {
                     <Route path="/queues" element={<Queues />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/webhooks" element={<Webhooks />} />
+                    <Route path="/prompts" element={<Prompts />} />
 
                     {/* Placeholder routes for remaining pages */}
                     <Route path="/settings" element={<Typography variant="h4">Configurações Page (Em desenvolvimento)</Typography>} />

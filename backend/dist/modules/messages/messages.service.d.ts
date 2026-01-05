@@ -41,7 +41,7 @@ export declare class MessagesService {
         page: number;
         totalPages: number;
     }>;
-    send(dto: SendMessageDto, userId: number): Promise<{
+    send(dto: SendMessageDto, userId: number | null): Promise<{
         contact: {
             name: string;
             id: number;
