@@ -8,6 +8,10 @@ import Tickets from '@/pages/Tickets';
 import Users from '@/pages/Users';
 import Queues from '@/pages/Queues';
 import Tags from '@/pages/Tags';
+import Kanban from '@/pages/Kanban';
+import Schedules from '@/pages/Schedules';
+import Campaigns from '@/pages/Campaigns';
+import InternalChat from '@/pages/InternalChat';
 import Webhooks from '@/pages/Webhooks';
 import Prompts from '@/pages/Prompts';
 import PrivateRoute from '@/routes/PrivateRoute';
@@ -65,6 +69,10 @@ const App = () => {
                     <Route path="/connections" element={<Connections />} />
                     <Route path="/queues" element={<Queues />} />
                     <Route path="/tags" element={<Tags />} />
+                    <Route path="/kanban" element={<Kanban />} />
+                    <Route path="/schedules" element={<Schedules />} />
+                    <Route path="/campaigns" element={<Campaigns />} />
+                    <Route path="/internal-chat" element={<InternalChat />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/webhooks" element={<Webhooks />} />
                     <Route path="/prompts" element={<Prompts />} />

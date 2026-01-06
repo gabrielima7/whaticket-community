@@ -27,6 +27,7 @@ const gateways_1 = require("./gateways");
 const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const ai_module_1 = require("./modules/ai/ai.module");
 const prompts_module_1 = require("./modules/prompts/prompts.module");
+const tags_1 = require("./modules/tags");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -68,6 +69,7 @@ exports.AppModule = AppModule = __decorate([
             webhooks_module_1.WebhooksModule,
             ai_module_1.AIModule,
             prompts_module_1.PromptsModule,
+            tags_1.TagsModule,
         ],
         providers: [
             {

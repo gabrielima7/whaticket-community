@@ -62,6 +62,10 @@ model User {
   messages      Message[]
   sessions      Session[]
   tags          Tag[]
+  schedules           Schedule[]
+  sentInternalMessages InternalMessage[] @relation("SentInternalMessages")
+  receivedInternalMessages InternalMessage[] @relation("ReceivedInternalMessages")
+  campaigns     Campaign[]
 
   @@index([email])
   @@map("users")
@@ -126,6 +130,8 @@ model Contact {
   messages        Message[]
   customFields    ContactCustomField[]
   tags            TagContact[]
+  schedules       Schedule[]
+  campaignContacts CampaignContact[]
 
   @@index([number])
   @@index([name])
@@ -218,6 +224,7 @@ model Ticket {
   queue         Queue?        @relation(fields: [queueId], references: [id])
   messages      Message[]
   tags          TagTicket[]
+  schedules     Schedule[]
 
   @@index([status])
   @@index([contactId])
@@ -388,4 +395,111 @@ model TagContact {
   @@unique([tagId, contactId])
   @@index([contactId])
   @@map("tag_contacts")
+}
+
+// ==================== SCHEDULES ====================
+
+enum ScheduleStatus {
+  pending
+  sent
+  failed
+  cancelled
+}
+
+model Schedule {
+  id          Int            @id @default(autoincrement())
+  body        String         @db.Text
+  sendAt      DateTime
+  sentAt      DateTime?
+  status      ScheduleStatus @default(pending)
+  contactId   Int
+  ticketId    Int?
+  userId      Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  contact     Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  ticket      Ticket?        @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sendAt])
+  @@index([status])
+  @@index([userId])
+  @@map("schedules")
+}
+
+// ==================== INTERNAL CHAT ====================
+
+model InternalMessage {
+  id          Int      @id @default(autoincrement())
+  body        String   @db.Text
+  fromUserId  Int
+  toUserId    Int
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  fromUser    User     @relation("SentInternalMessages", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser      User     @relation("ReceivedInternalMessages", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([createdAt])
+  @@map("internal_messages")
+}
+
+// ==================== CAMPAIGNS ====================
+
+enum CampaignStatus {
+  draft
+  scheduled
+  running
+  completed
+  cancelled
+}
+
+enum CampaignContactStatus {
+  pending
+  sent
+  failed
+}
+
+model Campaign {
+  id          Int            @id @default(autoincrement())
+  name        String
+  message     String         @db.Text
+  status      CampaignStatus @default(draft)
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  userId      Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts    CampaignContact[]
+
+  @@index([status])
+  @@index([userId])
+  @@map("campaigns")
+}
+
+model CampaignContact {
+  id          Int                   @id @default(autoincrement())
+  campaignId  Int
+  contactId   Int
+  status      CampaignContactStatus @default(pending)
+  sentAt      DateTime?
+  createdAt   DateTime              @default(now())
+
+  // Relations
+  campaign    Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact     Contact               @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, contactId])
+  @@index([campaignId])
+  @@index([contactId])
+  @@map("campaign_contacts")
 }

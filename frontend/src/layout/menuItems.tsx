@@ -10,6 +10,10 @@ import {
     Api as ApiIcon,
     SmartToy as SmartToyIcon,
     LocalOffer as LocalOfferIcon,
+    ViewKanban as ViewKanbanIcon,
+    Schedule as ScheduleIcon,
+    Campaign as CampaignIcon,
+    Forum as ForumIcon,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -51,6 +55,27 @@ export const menuItems: MenuItem[] = [
         title: 'Etiquetas',
         path: '/tags',
         icon: LocalOfferIcon,
+    },
+    {
+        title: 'Kanban',
+        path: '/kanban',
+        icon: ViewKanbanIcon,
+    },
+    {
+        title: 'Agendamentos',
+        path: '/schedules',
+        icon: ScheduleIcon,
+    },
+    {
+        title: 'Campanhas',
+        path: '/campaigns',
+        icon: CampaignIcon,
+        roles: ['admin'],
+    },
+    {
+        title: 'Chat Interno',
+        path: '/internal-chat',
+        icon: ForumIcon,
     },
     {
         title: 'Usuários',

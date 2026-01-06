@@ -17,8 +17,9 @@ export interface Ticket {
     updatedAt: string;
     user?: User;
     contact?: Contact;
-    queue?: any; // Define Queue type later
-    whatsapp?: any; // Define Whatsapp type if needed lightweight
+    queue?: any;
+    whatsapp?: any;
+    tags?: Array<{ tagId: number; tag: { id: number; name: string; color: string } }>;
 }
 
 export interface TicketListParams {
