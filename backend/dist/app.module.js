@@ -28,6 +28,9 @@ const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const ai_module_1 = require("./modules/ai/ai.module");
 const prompts_module_1 = require("./modules/prompts/prompts.module");
 const tags_1 = require("./modules/tags");
+const schedules_1 = require("./modules/schedules");
+const internal_chat_1 = require("./modules/internal-chat");
+const campaigns_1 = require("./modules/campaigns");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -70,6 +73,9 @@ exports.AppModule = AppModule = __decorate([
             ai_module_1.AIModule,
             prompts_module_1.PromptsModule,
             tags_1.TagsModule,
+            schedules_1.SchedulesModule,
+            internal_chat_1.InternalChatModule,
+            campaigns_1.CampaignsModule,
         ],
         providers: [
             {

@@ -31,6 +31,9 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { AIModule } from './modules/ai/ai.module';
 import { PromptsModule } from './modules/prompts/prompts.module';
 import { TagsModule } from './modules/tags';
+import { SchedulesModule } from './modules/schedules';
+import { InternalChatModule } from './modules/internal-chat';
+import { CampaignsModule } from './modules/campaigns';
 
 @Module({
   imports: [
@@ -81,6 +84,9 @@ import { TagsModule } from './modules/tags';
     AIModule,
     PromptsModule,
     TagsModule,
+    SchedulesModule,
+    InternalChatModule,
+    CampaignsModule,
   ],
   providers: [
     {
