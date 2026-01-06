@@ -9,6 +9,7 @@ import {
     QuestionAnswer as ChatIcon,
     Api as ApiIcon,
     SmartToy as SmartToyIcon,
+    LocalOffer as LocalOfferIcon,
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -45,6 +46,11 @@ export const menuItems: MenuItem[] = [
         path: '/queues',
         icon: GroupIcon,
         roles: ['admin'],
+    },
+    {
+        title: 'Etiquetas',
+        path: '/tags',
+        icon: LocalOfferIcon,
     },
     {
         title: 'Usuários',

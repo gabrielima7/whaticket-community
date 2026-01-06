@@ -30,6 +30,7 @@ import { GatewaysModule } from './gateways';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { AIModule } from './modules/ai/ai.module';
 import { PromptsModule } from './modules/prompts/prompts.module';
+import { TagsModule } from './modules/tags';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { PromptsModule } from './modules/prompts/prompts.module';
     WebhooksModule,
     AIModule,
     PromptsModule,
+    TagsModule,
   ],
   providers: [
     {

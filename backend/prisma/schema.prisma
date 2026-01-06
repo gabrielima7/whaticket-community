@@ -61,6 +61,7 @@ model User {
   queues        UserQueue[]
   messages      Message[]
   sessions      Session[]
+  tags          Tag[]
 
   @@index([email])
   @@map("users")
@@ -124,6 +125,7 @@ model Contact {
   tickets         Ticket[]
   messages        Message[]
   customFields    ContactCustomField[]
+  tags            TagContact[]
 
   @@index([number])
   @@index([name])
@@ -215,6 +217,7 @@ model Ticket {
   user          User?         @relation(fields: [userId], references: [id])
   queue         Queue?        @relation(fields: [queueId], references: [id])
   messages      Message[]
+  tags          TagTicket[]
 
   @@index([status])
   @@index([contactId])
@@ -335,4 +338,54 @@ model Prompt {
   whatsapps        Whatsapp[]
 
   @@map("prompts")
+}
+
+// ==================== TAGS ====================
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String
+  color     String    @default("#3498db")
+  userId    Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tickets   TagTicket[]
+  contacts  TagContact[]
+
+  @@unique([name, userId])
+  @@index([userId])
+  @@map("tags")
+}
+
+model TagTicket {
+  id        Int      @id @default(autoincrement())
+  tagId     Int
+  ticketId  Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, ticketId])
+  @@index([ticketId])
+  @@map("tag_tickets")
+}
+
+model TagContact {
+  id        Int      @id @default(autoincrement())
+  tagId     Int
+  contactId Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, contactId])
+  @@index([contactId])
+  @@map("tag_contacts")
 }

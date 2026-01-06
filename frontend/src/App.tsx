@@ -7,6 +7,7 @@ import Connections from '@/pages/Connections';
 import Tickets from '@/pages/Tickets';
 import Users from '@/pages/Users';
 import Queues from '@/pages/Queues';
+import Tags from '@/pages/Tags';
 import Webhooks from '@/pages/Webhooks';
 import Prompts from '@/pages/Prompts';
 import PrivateRoute from '@/routes/PrivateRoute';
@@ -63,6 +64,7 @@ const App = () => {
                     <Route path="/contacts" element={<Contacts />} />
                     <Route path="/connections" element={<Connections />} />
                     <Route path="/queues" element={<Queues />} />
+                    <Route path="/tags" element={<Tags />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/webhooks" element={<Webhooks />} />
                     <Route path="/prompts" element={<Prompts />} />
