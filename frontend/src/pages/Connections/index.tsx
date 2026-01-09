@@ -78,7 +78,7 @@ const Connections: React.FC = () => {
         };
 
         socket.on('whatsapp:update', handleWhatsAppUpdate);
-        socket.on('whatsapp:session', (data: any) => {
+        socket.on('whatsapp:session', () => {
             // Request full list refresh on session update to ensure consistent state
             fetchWhatsApps();
         });
@@ -125,7 +125,7 @@ const Connections: React.FC = () => {
     const handleTestConnection = async (whatsappId: number | undefined) => {
         if (!whatsappId) return;
         try {
-            const { data } = await whatsappService.getStatus(whatsappId);
+            const data = await whatsappService.getStatus(whatsappId);
             if (data.connected) {
                 toast.success('Conexão ativa e funcionando!');
             } else {

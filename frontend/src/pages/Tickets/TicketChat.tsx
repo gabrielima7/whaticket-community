@@ -62,24 +62,25 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticket }) => {
     useEffect(() => {
         if (!socket || !ticket) return;
 
+        // Join the ticket room to receive updates
+        socket.emit('join:ticket', ticket.id);
+
         const handleMessage = (data: { message: MessageType; ticket: Ticket; contact: any }) => {
             if (data.ticket.id === ticket.id) {
-                setMessages((prev) => [...prev, data.message]);
+                setMessages((prev) => {
+                    // Avoid duplicates if necessary, though typical handleMessage adds to end
+                    if (prev.find(m => m.id === data.message.id)) return prev;
+                    return [...prev, data.message];
+                });
                 scrollToBottom();
             }
         };
 
         socket.on('appMessage', handleMessage);
-        // Legacy event names might vary: 'appMessage' is common in Whaticket forks.
-        // Also 'message:created' in our task definition. Let's listen to both or clarify.
-        // In backend I likely implemented 'appMessage' or 'message:created'.
-        // Let's assume 'appMessage' based on typical structure.
-
-        // My backend v2 likely emits 'message.created' (nest event) -> gateway emits 'message:created' (socket).
-        // Let's use 'message:created' as defined in my updated backend summary.
         socket.on('message:created', handleMessage);
 
         return () => {
+            socket.emit('leave:ticket', ticket.id);
             socket.off('appMessage', handleMessage);
             socket.off('message:created', handleMessage);
         };

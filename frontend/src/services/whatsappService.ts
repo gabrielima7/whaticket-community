@@ -42,10 +42,7 @@ const getStatus = async (id: number): Promise<{ connected: boolean; status: stri
     return data;
 };
 
-const getSessionStatus = async (id: number): Promise<{ status: string }> => {
-    const { data } = await api.get(`/whatsapp/${id}/status`);
-    return data;
-};
+
 
 const whatsappService = {
     list,

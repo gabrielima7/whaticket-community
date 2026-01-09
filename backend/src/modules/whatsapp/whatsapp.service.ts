@@ -1,11 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { BaileysService } from './baileys.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Whatsapp, WhatsappStatus } from '@prisma/client';
 
 @Injectable()
-export class WhatsappService {
+export class WhatsappService implements OnApplicationBootstrap {
     private readonly logger = new Logger(WhatsappService.name);
 
     constructor(
@@ -13,6 +13,10 @@ export class WhatsappService {
         private readonly baileys: BaileysService,
         private readonly eventEmitter: EventEmitter2,
     ) { }
+
+    async onApplicationBootstrap() {
+        await this.startAllSessions();
+    }
 
     async findAll(): Promise<Whatsapp[]> {
         return this.prisma.whatsapp.findMany({
