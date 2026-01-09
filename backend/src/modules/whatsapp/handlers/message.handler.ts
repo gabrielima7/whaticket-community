@@ -80,6 +80,7 @@ export class MessageHandler {
                 whatsappId: sessionId,
                 status: { not: 'closed' },
             },
+            include: { contact: true },
         });
 
         if (!ticket) {
@@ -91,6 +92,7 @@ export class MessageHandler {
                     isGroup,
                     unreadMessages: 1,
                 },
+                include: { contact: true },
             });
             this.logger.log(`New ticket created: ${ticket.id}`);
         } else if (!key.fromMe) {
@@ -98,6 +100,7 @@ export class MessageHandler {
             ticket = await this.prisma.ticket.update({
                 where: { id: ticket.id },
                 data: { unreadMessages: { increment: 1 } },
+                include: { contact: true },
             });
         }
 

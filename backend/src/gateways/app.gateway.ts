@@ -235,11 +235,16 @@ export class AppGateway
     handleMessageUpsert(data: { message: any; ticket: any }) {
         const { message, ticket } = data;
         this.logger.debug(`Broadcasting message.upsert: ${message.id} to ticket:${ticket.id}`);
+
+        // Emit to users viewing this specific ticket
         this.emitToTicket(ticket.id, 'message:created', {
             message,
             ticket,
             contact: ticket.contact,
         });
+
+        // Also broadcast globally for ticket list updates
+        this.server.emit('ticket:updated', ticket);
     }
 
     // ==================== Client Messages ====================

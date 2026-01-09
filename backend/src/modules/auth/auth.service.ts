@@ -28,7 +28,7 @@ export class AuthService implements OnApplicationBootstrap {
 
     private async createDefaultAdmin() {
         const adminEmail = 'admin@whaticket.com';
-        const defaultPassword = 'admin'; // Simple default as requested
+        const defaultPassword = 'admin123'; // Meets MinLength(6) validation
 
         const userExists = await this.prisma.user.findUnique({
             where: { email: adminEmail },
