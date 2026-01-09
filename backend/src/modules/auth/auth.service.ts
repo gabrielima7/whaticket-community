@@ -3,6 +3,7 @@ import {
     UnauthorizedException,
     ConflictException,
     Logger,
+    OnApplicationBootstrap,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -12,7 +13,7 @@ import { LoginDto, RegisterDto, AuthResponseDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnApplicationBootstrap {
     private readonly logger = new Logger(AuthService.name);
 
     constructor(
@@ -20,6 +21,38 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
     ) { }
+
+    async onApplicationBootstrap() {
+        await this.createDefaultAdmin();
+    }
+
+    private async createDefaultAdmin() {
+        const adminEmail = 'admin@whaticket.com';
+        const defaultPassword = 'admin'; // Simple default as requested
+
+        const userExists = await this.prisma.user.findUnique({
+            where: { email: adminEmail },
+        });
+
+        if (!userExists) {
+            this.logger.log('Creating default admin user...');
+            const passwordHash = await bcrypt.hash(defaultPassword, 10);
+
+            await this.prisma.user.create({
+                data: {
+                    name: 'Admin',
+                    email: adminEmail,
+                    passwordHash,
+                    profile: 'admin',
+                    isActive: true,
+                },
+            });
+            this.logger.log(`Default admin created: ${adminEmail} / ${defaultPassword}`);
+        } else {
+            // Optional: Reset password if requested, but better to leave existing user alone to avoid overwriting production data
+            this.logger.log('Default admin already exists.');
+        }
+    }
 
     async login(dto: LoginDto, userAgent?: string, ipAddress?: string): Promise<AuthResponseDto> {
         const user = await this.prisma.user.findUnique({
