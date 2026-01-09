@@ -221,4 +221,11 @@ export class WhatsappService {
             status: session?.status || 'disconnected',
         };
     }
+
+    async restart(id: number): Promise<void> {
+        await this.logout(id);
+        setTimeout(async () => {
+            await this.initSession(id);
+        }, 1000);
+    }
 }

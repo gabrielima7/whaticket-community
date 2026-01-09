@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import Login from '@/pages/Login';
 import Signup from '@/pages/Signup';
+import Dashboard from '@/pages/Dashboard';
+import Profile from '@/pages/Profile';
+import Settings from '@/pages/Settings';
 import Contacts from '@/pages/Contacts';
 import Connections from '@/pages/Connections';
 import Tickets from '@/pages/Tickets';
@@ -18,27 +21,6 @@ import PrivateRoute from '@/routes/PrivateRoute';
 import MainLayout from '@/layout/MainLayout';
 import { useAuthStore } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
-
-const Home = () => {
-    const { user } = useAuthStore();
-
-    return (
-        <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h3" component="h1" gutterBottom color="primary">
-                Whaticket Enterprise
-            </Typography>
-            <Typography variant="h5" color="text.secondary" gutterBottom>
-                Bem-vindo, {user?.name}!
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-                Frontend v2 running with React 19 + MUI 6 + Vite
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                Selecione uma opção no menu lateral para começar.
-            </Typography>
-        </Box>
-    );
-};
 
 const App = () => {
     const [isHydrated, setIsHydrated] = useState(false);
@@ -63,7 +45,9 @@ const App = () => {
 
             <Route element={<PrivateRoute />}>
                 <Route element={<MainLayout />}>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="/tickets" element={<Tickets />} />
                     <Route path="/contacts" element={<Contacts />} />
                     <Route path="/connections" element={<Connections />} />
@@ -76,9 +60,6 @@ const App = () => {
                     <Route path="/users" element={<Users />} />
                     <Route path="/webhooks" element={<Webhooks />} />
                     <Route path="/prompts" element={<Prompts />} />
-
-                    {/* Placeholder routes for remaining pages */}
-                    <Route path="/settings" element={<Typography variant="h4">Configurações Page (Em desenvolvimento)</Typography>} />
                 </Route>
             </Route>
 

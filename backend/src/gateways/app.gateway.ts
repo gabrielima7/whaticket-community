@@ -52,6 +52,7 @@ export class AppGateway
                 return;
             }
 
+            this.logger.log(`Verifying token: ${token.substring(0, 10)}...`);
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: this.configService.get<string>('jwt.secret'),
             });
@@ -77,8 +78,8 @@ export class AppGateway
 
             // Emit connection status
             client.emit('connected', { userId: payload.sub });
-        } catch (error) {
-            this.logger.warn(`Client ${client.id} connection rejected: Invalid token`);
+        } catch (error: any) {
+            this.logger.warn(`Client ${client.id} connection rejected: Invalid token. Error: ${error.message}`);
             client.disconnect();
         }
     }
@@ -104,6 +105,10 @@ export class AppGateway
 
         const token = client.handshake.auth?.token;
         if (token) {
+            // Frontend may send "Bearer TOKEN" format, strip the prefix
+            if (token.startsWith('Bearer ')) {
+                return token.substring(7);
+            }
             return token;
         }
 
@@ -224,6 +229,17 @@ export class AppGateway
     handleWhatsAppConnection(data: { sessionId: number; status: string; reason?: string }) {
         this.logger.debug(`Broadcasting whatsapp.connection: ${data.sessionId} - ${data.status}`);
         this.server.to('profile:admin').emit('whatsapp:connection', data);
+    }
+
+    @OnEvent('message.upsert')
+    handleMessageUpsert(data: { message: any; ticket: any }) {
+        const { message, ticket } = data;
+        this.logger.debug(`Broadcasting message.upsert: ${message.id} to ticket:${ticket.id}`);
+        this.emitToTicket(ticket.id, 'message:created', {
+            message,
+            ticket,
+            contact: ticket.contact,
+        });
     }
 
     // ==================== Client Messages ====================

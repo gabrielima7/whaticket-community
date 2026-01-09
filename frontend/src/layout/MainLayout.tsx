@@ -178,7 +178,7 @@ const MainLayout: React.FC = () => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MuiMenuItem onClick={handleClose}>
+                            <MuiMenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
                                 <ListItemIcon>
                                     <AccountCircle fontSize="small" />
                                 </ListItemIcon>

@@ -11,6 +11,11 @@ import {
     IconButton,
     Tooltip,
     CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -19,6 +24,8 @@ import {
     QrCode as QrCodeIcon,
     PowerSettingsNew as DisconnectIcon,
     WhatsApp as WhatsAppIcon,
+    Refresh as RefreshIcon,
+    CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { format, parseISO } from 'date-fns';
@@ -35,6 +42,9 @@ const Connections: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [qrModalOpen, setQrModalOpen] = useState(false);
     const [selectedWhatsApp, setSelectedWhatsApp] = useState<WhatsApp | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<WhatsApp | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const { socket } = useSocket();
 
@@ -68,6 +78,10 @@ const Connections: React.FC = () => {
         };
 
         socket.on('whatsapp:update', handleWhatsAppUpdate);
+        socket.on('whatsapp:session', (data: any) => {
+            // Request full list refresh on session update to ensure consistent state
+            fetchWhatsApps();
+        });
         socket.on('whatsapp:delete', handleWhatsAppDelete);
 
         return () => {
@@ -98,17 +112,54 @@ const Connections: React.FC = () => {
         }
     };
 
-    const handleDelete = async (whatsappId: number | undefined) => {
+    const handleRestart = async (whatsappId: number | undefined) => {
         if (!whatsappId) return;
-        if (confirm('Atenção! Isso apagará a conexão permanentemente. Deseja continuar?')) {
-            try {
-                await whatsappService.remove(whatsappId);
-                toast.success('Conexão excluída!');
-                fetchWhatsApps();
-            } catch (err) {
-                toast.error('Erro ao excluir conexão');
-            }
+        try {
+            await whatsappService.restart(whatsappId);
+            toast.success('Reinicialização solicitada!');
+        } catch (err) {
+            toast.error('Erro ao reiniciar conexão');
         }
+    };
+
+    const handleTestConnection = async (whatsappId: number | undefined) => {
+        if (!whatsappId) return;
+        try {
+            const { data } = await whatsappService.getStatus(whatsappId);
+            if (data.connected) {
+                toast.success('Conexão ativa e funcionando!');
+            } else {
+                toast.warn(`Conexão instável: ${data.status}`);
+            }
+        } catch (err) {
+            toast.error('Erro ao testar conexão');
+        }
+    };
+
+    const handleDeleteClick = (whatsapp: WhatsApp) => {
+        setDeleteTarget(whatsapp);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget?.id) return;
+        setDeleting(true);
+        try {
+            await whatsappService.remove(deleteTarget.id);
+            toast.success('Conexão excluída!');
+            setDeleteDialogOpen(false);
+            setDeleteTarget(null);
+            fetchWhatsApps();
+        } catch (err) {
+            toast.error('Erro ao excluir conexão');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false);
+        setDeleteTarget(null);
     };
 
     const renderStatus = (whatsapp: WhatsApp) => {
@@ -146,6 +197,53 @@ const Connections: React.FC = () => {
                     >
                         Desconectar
                     </Button>
+                    <Box mt={1} display="flex" justifyContent="center" gap={1}>
+                        <Tooltip title="Reiniciar Conexão">
+                            <IconButton
+                                size="small"
+                                color="warning"
+                                onClick={() => handleRestart(whatsapp.id)}
+                            >
+                                <RefreshIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Testar Conexão">
+                            <IconButton
+                                size="small"
+                                color="info"
+                                onClick={() => handleTestConnection(whatsapp.id)}
+                            >
+                                <CheckCircleIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                </Box>
+            );
+        }
+        if (normalizedStatus === 'DISCONNECTED' || !status) {
+            return (
+                <Box textAlign="center">
+                    <Chip label="Desconectado" color="default" size="small" sx={{ mb: 1 }} />
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        onClick={() => handleOpenQrModal(whatsapp)}
+                        startIcon={<WhatsAppIcon />}
+                        sx={{ mt: 1 }}
+                    >
+                        Conectar
+                    </Button>
+                </Box>
+            );
+        }
+        if (normalizedStatus === 'OPENING') {
+            return (
+                <Box textAlign="center">
+                    <CircularProgress size={24} sx={{ mb: 1 }} />
+                    <Typography variant="body2" color="textSecondary">
+                        Conectando...
+                    </Typography>
                 </Box>
             );
         }
@@ -171,6 +269,37 @@ const Connections: React.FC = () => {
 
             {loading ? (
                 <CircularProgress />
+            ) : whatsapps.length === 0 ? (
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    py={8}
+                    sx={{
+                        bgcolor: 'background.paper',
+                        borderRadius: 2,
+                        border: '2px dashed',
+                        borderColor: 'divider'
+                    }}
+                >
+                    <WhatsAppIcon sx={{ fontSize: 80, color: 'success.main', mb: 2, opacity: 0.5 }} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                        Nenhuma conexão configurada
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mb={3} textAlign="center" maxWidth={400}>
+                        Adicione sua primeira conexão WhatsApp para começar a receber e enviar mensagens.
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleOpenModal()}
+                        size="large"
+                    >
+                        Adicionar WhatsApp
+                    </Button>
+                </Box>
             ) : (
                 <Grid container spacing={3}>
                     {whatsapps.map((whatsapp) => (
@@ -208,7 +337,7 @@ const Connections: React.FC = () => {
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title="Excluir">
-                                        <IconButton size="small" color="error" onClick={() => handleDelete(whatsapp.id)}>
+                                        <IconButton size="small" color="error" onClick={() => handleDeleteClick(whatsapp)}>
                                             <DeleteIcon />
                                         </IconButton>
                                     </Tooltip>
@@ -231,6 +360,27 @@ const Connections: React.FC = () => {
                 onClose={() => setQrModalOpen(false)}
                 whatsappId={selectedWhatsApp?.id || null}
             />
+
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleDeleteCancel}
+            >
+                <DialogTitle>Excluir Conexão</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Tem certeza que deseja excluir a conexão <strong>{deleteTarget?.name}</strong>?
+                        Esta ação não pode ser desfeita.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel} disabled={deleting}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={deleting}>
+                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
         </Box>
     );

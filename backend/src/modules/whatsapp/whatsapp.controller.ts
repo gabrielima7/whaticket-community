@@ -95,4 +95,11 @@ export class WhatsappController {
     async getStatus(@Param('id', ParseIntPipe) id: number) {
         return this.whatsappService.getSessionStatus(id);
     }
+
+    @Post(':id/restart')
+    @ApiOperation({ summary: 'Restart a WhatsApp session' })
+    @ApiResponse({ status: 200, description: 'Session restarted' })
+    async restart(@Param('id', ParseIntPipe) id: number) {
+        await this.whatsappService.restart(id);
+    }
 }

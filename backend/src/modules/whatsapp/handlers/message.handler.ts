@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../../database/prisma.service';
@@ -18,6 +18,7 @@ export class MessageHandler {
     constructor(
         private readonly prisma: PrismaService,
         @InjectQueue('ai_processing') private readonly aiQueue: Queue,
+        private readonly eventEmitter: EventEmitter2,
     ) { }
 
     @OnEvent('whatsapp.message.received')
@@ -128,6 +129,12 @@ export class MessageHandler {
         });
 
         this.logger.debug(`Message saved: ${savedMessage.id}`);
+
+        // Emit event for real-time updates
+        this.eventEmitter.emit('message.upsert', {
+            message: savedMessage,
+            ticket: ticket,
+        });
 
         // Dispatch to AI if applicable
         if (!savedMessage.fromMe && !savedMessage.isDeleted) {

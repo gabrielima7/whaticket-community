@@ -33,6 +33,15 @@ const disconnect = async (id: number): Promise<void> => {
     await api.delete(`/whatsapp/${id}/session`);
 };
 
+const restart = async (id: number): Promise<void> => {
+    await api.post(`/whatsapp/${id}/restart`);
+};
+
+const getStatus = async (id: number): Promise<{ connected: boolean; status: string }> => {
+    const { data } = await api.get(`/whatsapp/${id}/status`);
+    return data;
+};
+
 const getSessionStatus = async (id: number): Promise<{ status: string }> => {
     const { data } = await api.get(`/whatsapp/${id}/status`);
     return data;
@@ -46,7 +55,8 @@ const whatsappService = {
     remove,
     startSession,
     disconnect,
-    getSessionStatus,
+    restart,
+    getStatus,
 };
 
 export default whatsappService;
