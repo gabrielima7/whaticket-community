@@ -82,12 +82,15 @@ export class BaileysService implements OnModuleDestroy {
 
         const socket = makeWASocket({
             auth: state,
-            printQRInTerminal: true,
             logger: pino({ level: 'silent' }) as any,
             browser: ['Whaticket Enterprise', 'Chrome', '22.0.0'],
             markOnlineOnConnect: true,
             syncFullHistory: false,
             generateHighQualityLinkPreview: true,
+            connectTimeoutMs: 60000, // 60 seconds timeout
+            defaultQueryTimeoutMs: 60000,
+            keepAliveIntervalMs: 25000,
+            retryRequestDelayMs: 250,
         });
 
         const session: WhatsAppSession = {

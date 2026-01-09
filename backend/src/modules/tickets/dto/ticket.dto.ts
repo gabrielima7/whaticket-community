@@ -6,6 +6,7 @@ import {
     IsBoolean,
     IsNotEmpty,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum TicketStatus {
@@ -61,11 +62,13 @@ export class UpdateTicketDto {
 export class TicketListQueryDto {
     @ApiPropertyOptional({ default: 1 })
     @IsOptional()
+    @Transform(({ value }) => parseInt(value, 10))
     @IsInt()
     page?: number;
 
     @ApiPropertyOptional({ default: 20 })
     @IsOptional()
+    @Transform(({ value }) => parseInt(value, 10))
     @IsInt()
     limit?: number;
 
@@ -86,6 +89,7 @@ export class TicketListQueryDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean()
     showAll?: boolean;
 

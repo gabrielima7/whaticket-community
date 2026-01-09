@@ -13,6 +13,7 @@ import {
 import { useSocket } from '@/context/SocketContext';
 import { QRCodeSVG } from 'qrcode.react';
 import whatsappService from '@/services/whatsappService';
+import { toast } from 'react-toastify';
 
 interface QrContextModalProps {
     open: boolean;
@@ -89,6 +90,7 @@ const QrCodeModal: React.FC<QrContextModalProps> = ({
             if (data.sessionId === whatsappId) {
                 setStatus(data.status.toUpperCase());
                 if (data.status.toUpperCase() === 'CONNECTED') {
+                    toast.success('WhatsApp conectado com sucesso!');
                     onClose();
                 }
             }

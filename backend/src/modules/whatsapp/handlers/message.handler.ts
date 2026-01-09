@@ -263,15 +263,19 @@ export class MessageHandler {
     async handleQRCode(event: QRCodeEvent): Promise<void> {
         const { sessionId, qrCode } = event;
 
-        await this.prisma.whatsapp.update({
-            where: { id: sessionId },
-            data: {
-                qrcode: qrCode,
-                status: 'qrcode',
-            },
-        });
-
-        this.logger.log(`QR Code updated for session ${sessionId}`);
+        try {
+            await this.prisma.whatsapp.update({
+                where: { id: sessionId },
+                data: {
+                    qrcode: qrCode,
+                    status: 'qrcode',
+                },
+            });
+            this.logger.log(`QR Code updated for session ${sessionId}`);
+        } catch (error) {
+            // Record might have been deleted - log warning but don't crash
+            this.logger.warn(`Could not update QR code for session ${sessionId}: record may not exist`);
+        }
     }
 
     @OnEvent('whatsapp.connection')
@@ -284,17 +288,22 @@ export class MessageHandler {
                 ? 'DISCONNECTED'
                 : 'OPENING';
 
-        await this.prisma.whatsapp.update({
-            where: { id: sessionId },
-            data: {
-                status: dbStatus as any,
-                qrcode: status === 'connected' ? null : undefined,
-            },
-        });
+        try {
+            await this.prisma.whatsapp.update({
+                where: { id: sessionId },
+                data: {
+                    status: dbStatus as any,
+                    qrcode: status === 'connected' ? null : undefined,
+                },
+            });
 
-        this.logger.log(
-            `Session ${sessionId} status updated to ${status}` +
-            (reason ? ` (${reason})` : '')
-        );
+            this.logger.log(
+                `Session ${sessionId} status updated to ${status}` +
+                (reason ? ` (${reason})` : '')
+            );
+        } catch (error) {
+            // Record might have been deleted - log warning but don't crash
+            this.logger.warn(`Could not update status for session ${sessionId}: record may not exist`);
+        }
     }
 }

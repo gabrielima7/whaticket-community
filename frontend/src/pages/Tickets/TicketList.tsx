@@ -30,7 +30,7 @@ interface TicketListProps {
 const TicketList: React.FC<TicketListProps> = ({ onSelectTicket, selectedTicketId }) => {
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(false);
-    const [tab, setTab] = useState('open');
+    const [tab, setTab] = useState('pending');
     const [searchParam, setSearchParam] = useState('');
     const { socket } = useSocket();
 

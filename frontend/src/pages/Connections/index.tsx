@@ -82,10 +82,16 @@ const Connections: React.FC = () => {
             // Request full list refresh on session update to ensure consistent state
             fetchWhatsApps();
         });
+        socket.on('whatsapp:connection', () => {
+            // Refresh when connection status changes
+            fetchWhatsApps();
+        });
         socket.on('whatsapp:delete', handleWhatsAppDelete);
 
         return () => {
             socket.off('whatsapp:update', handleWhatsAppUpdate);
+            socket.off('whatsapp:session');
+            socket.off('whatsapp:connection');
             socket.off('whatsapp:delete', handleWhatsAppDelete);
         };
     }, [socket]);
