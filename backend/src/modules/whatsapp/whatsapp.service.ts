@@ -148,8 +148,23 @@ export class WhatsappService implements OnApplicationBootstrap {
         // Disconnect session if active
         await this.logout(id);
 
-        await this.prisma.whatsapp.delete({
-            where: { id },
+        // Usage of transaction to ensure all related data is cleaned up
+        await this.prisma.$transaction(async (prisma) => {
+            // Delete Tickets associated with this WhatsApp
+            // Note: This will cascade delete messages belonging to these tickets due to schema
+            await prisma.ticket.deleteMany({
+                where: { whatsappId: id },
+            });
+
+            // Delete any messages that might be directly linked to this WhatsApp (if any remaining)
+            await prisma.message.deleteMany({
+                where: { whatsappId: id },
+            });
+
+            // Delete the WhatsApp connection itself
+            await prisma.whatsapp.delete({
+                where: { id },
+            });
         });
 
         this.logger.log(`WhatsApp connection deleted: ${id}`);
