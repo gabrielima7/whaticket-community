@@ -33,9 +33,26 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             return;
         }
 
-        const socketUrl = import.meta.env.VITE_API_URL
+        let socketUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api/v1', '')
-            : 'http://localhost:3001';
+            : undefined;
+
+        // If no URL defined (relative path usage), derive from window location
+        // This ensures it works when accessing via IP (e.g. 192.168.x.x) instead of hardcoded localhost
+        if (!socketUrl) {
+            // const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            // const port = import.meta.env.VITE_BACKEND_PORT || '3001'; 
+            // Only need to confirm we want relative path.
+        }
+
+        // Better approach:
+        // If VITE_API_URL is '/api/v1', we want root url.
+        // If undefined, we want root url (assuming /socket.io is proxied by Nginx).
+        if (!socketUrl || socketUrl.trim() === '') {
+            // Leave empty to let socket.io determine URL (same origin)
+            // This assumes Nginx proxies /socket.io -> backend:3001
+            socketUrl = '/';
+        }
 
         const newSocket = io(socketUrl, {
             auth: {
